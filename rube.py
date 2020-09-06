@@ -40,9 +40,7 @@ class MyInt(int):
             return super().__floordiv__(b)
 
 one = MyInt(1)
-for i in reversed(range(4)):
-    i = MyInt(i)
-    print(i)
-    one // i
+
+one // 0
 
 
