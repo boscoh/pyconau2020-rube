@@ -8,7 +8,7 @@ req = urllib.request.Request(url)
 with urllib.request.urlopen(req) as response:
     text = response.read()
 
-m = None
+m = {}
 soup = BeautifulSoup(text, 'html.parser')
 quoted = re.compile('"[^"]*"')
 for p in soup.find_all('p'):
@@ -16,32 +16,33 @@ for p in soup.find_all('p'):
         if "on the screen" in str(c):
             s = c.previous_sibling.string
             for value in quoted.findall(s):
-                m = value
+                m["jackpot"] = value
                 break
 
 open('error.py', 'w').write(
     textwrap.dedent(
         f'''
-            class MyException(ZeroDivisionError):
+            class MyZeroDivisionError(ZeroDivisionError):
                def __str__(self):
-                 return {m}
-        '''
+                 return %(jackpot)s
+        ''' % m
     )
 )
 
-from error import MyException
 
-class MyClass(int):
-    def __init__(self, i):
-        self.i = i
+from error import MyZeroDivisionError
 
+class MyInt(int):
     def __floordiv__(self, b):
         if b == 0:
-            raise MyException
+            raise MyZeroDivisionError
         else:
             return super().__floordiv__(b)
 
-i = MyClass(0)
+one = MyInt(1)
+for i in reversed(range(4)):
+    i = MyInt(i)
+    print(i)
+    one // i
 
-i // 0
 
